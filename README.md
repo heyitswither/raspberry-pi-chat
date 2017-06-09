@@ -5,7 +5,9 @@ This is a websocket client for the raspberry pi group chat. You can join the dis
 
 You can find the documentation for the specifications of packet format and other details for creating your own client [here](http://rwci.ml)
 
-My old, non-working clients have been moved to the [old-version branch](https://github.com/heyitswither/raspberry-pi-chat/tree/old-version)
+~~My old, non-working clients have been moved to the [old-version branch](https://github.com/heyitswither/raspberry-pi-chat/tree/old-version)~~
+
+I privated my old repo due to it not having a license.
 
 ## Installation
 
