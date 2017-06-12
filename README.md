@@ -27,3 +27,8 @@ I privated my old repo due to it not having a license.
 - `|eval <python_code>` evalutes python code
 - `|basheval <baash_code>` evalutes bash code
 - `|help` show these commands
+
+## Future Plans
+
+- a server to compliment my client
+- a light version of the server and client (light as in it won't do much, the server and client are already light on resources) 
