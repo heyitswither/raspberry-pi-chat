@@ -3,5 +3,11 @@
   "serverAddress": null,
   "username": null,
   "password": null,
-  "useSHA512": false
+  "useSHA512": false,
+  "colors": [
+    {
+      "username": "wither",
+      "color": "#007fff"
+    }
+  ]
 }
