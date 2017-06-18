@@ -109,7 +109,7 @@ async def parse_command(message):
   elif message.split()[0] == "|help":
     print("Commands:\n\t|w <user> <message>\n\t\tsend a private message\n\t|raw <raw_json>\n\t\tsend raw json\n\t|users\n\t\tshow online users\n\t|eval <python_code>\n\t\tevaluate python code\n\t|basheval <bash_code>\n\t\tevaluate bash code\n\t|clear\n\t\tclears the chat\n\t|quit\n\t\tdisconnect from the server")
   else:
-    print("Unknown commandd: {}".format(outputMsg.split()[0]))
+    print("Unknown command: {}".format(message.split()[0]))
 
 async def send_message_queue(outputMsg): # Checks if sending message is a command, if it is print output, if not, send message
   if await is_command(outputMsg):
