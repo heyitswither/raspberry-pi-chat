@@ -22,12 +22,12 @@ users_list = [] # list of online users
 loggedIn = False
 user_colors = {}
 
-server_stat = po.custom(string="{}", color_code="red", stat_msg="[SERVER]")
-auth_stat = po.custom(string="{}", color_code="red", stat_msg="[AUTH]")
-join_stat = po.custom(string="{}", color_code="green", stat_msg="[CONNECT]")
-quit_stat = po.custom(string="{}", color_code="yellow", stat_msg="[DISCONNECT]")
-dm_stat = po.custom(string="{}", color_code="cyan", stat_msg="|{} > {}|")
-msg_stat = po.custom(string="{}", color_code="reset", stat_msg="<{}>")
+server_stat = po.custom(string="{}", color_code="red", stat_msg="[SERVER]", prn_out=False)
+auth_stat = po.custom(string="{}", color_code="red", stat_msg="[AUTH]", prn_out=False)
+join_stat = po.custom(string="{}", color_code="green", stat_msg="[CONNECT]", prn_out=False)
+quit_stat = po.custom(string="{}", color_code="yellow", stat_msg="[DISCONNECT]", prn_out=False)
+dm_stat = po.custom(string="{}", color_code="cyan", stat_msg="|{} > {}|", prn_out=False)
+msg_stat = po.custom(string="{}", color_code="reset", stat_msg="<{}>", prn_out=False)
 
 if config['username'] == None: # Asks for a username if it is not already set in config.json
   username = input("Username: ")
@@ -141,9 +141,9 @@ async def print_out(m_type, message):
     elif m_type == "auth":
       if message['new_account']:
         print(auth_stat.format("New account created successfully."))
-    elif not message['new_account'] and message['success']:
+      elif not message['new_account'] and message['success']:
         print(auth_stat.format("Successfully authenticated with an existing account."))
-    elif not message['new_account'] and not message['success']:
+      elif not message['new_account'] and not message['success']:
         print(auth_stat.format("There was an error authenticating, please check your password."))
     elif m_type == "user_list":
       if not users_list == []:
