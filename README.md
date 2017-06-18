@@ -11,7 +11,7 @@ I privated my old repo due to it not having a license.
 
 ## Installation
 
-1. Clone this repository to your computer using `git clone git@github.com:heyitswither/raspberry-pi-chat.git`
+1. Clone this repository to your computer using `git clone http://github.com/heyitswither/raspberry-pi-chat`
 2. Run `python3.5 -m pip install -r requirements.txt` to install dependancies
 3. Edit `config.json` with your credentials and the server address
 4. Any option, besides useSHA512 or custom, can be set to null to prompt everytime
