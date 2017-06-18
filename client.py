@@ -6,18 +6,28 @@ import os # used for clearing the screen
 import hashlib # used for hashing passwords
 from getpass import getpass # used for inputting passwords, doesnt display the password onscreen
 from datetime import datetime # used for timestamps
+from utils import prettyoutput as po # used for pretty output to the console
 
 with open('config.json') as fileIn:
   config = json.load(fileIn) # imports config.json as config
 
 if config['custom'] == False: # used for making sure the user has looked over config.json
-  print("Please read and change any necessary options in the config.json file")
-  print("If you are happy with the configuration, please change 'custom' to true")
+  print("Please read and change any necessary options in the config.json file.")
+  print("You must also have read the README.md file to the format of the options.")
+  print("If you have done these things, please change custom to true in the config.json file.")
   sys.exit()
 
-previousMsg = "" # the previosu message received, for spam prevention
+previousMsg = None # the previosu message received, for spam prevention
 users_list = [] # list of online users
 loggedIn = False
+user_colors = {}
+
+server_stat = po.custom(string="{}", color_code="red", stat_msg="[SERVER]")
+auth_stat = po.custom(string="{}", color_code="red", stat_msg="[AUTH]")
+join_stat = po.custom(string="{}", color_code="green", stat_msg="[CONNECT]")
+quit_stat = po.custom(string="{}", color_code="yellow", stat_msg="[DISCONNECT]")
+dm_stat = po.custom(string="{}", color_code="cyan", stat_msg="|{} > {}|")
+msg_stat = po.custom(string="{}", color_code="reset", stat_msg="<{}>")
 
 if config['username'] == None: # Asks for a username if it is not already set in config.json
   username = input("Username: ")
@@ -35,13 +45,17 @@ if config['useSHA512'] == True: # Hashed password if useSHA512 is set to true in
 else:
   hashedPass = rawPass.decode('utf-8')
 
+for user in config['colors']:
+  user_colors[user['username']] = user['color']
+
 async def connect(): # connect to the server
   global config
+  global ws
   if not config['serverAddress'] == None: # Check if the server address is already set in config.json, if not, ask for a server
-    ws = asyncio.get_event_loop().run_until_complete(websockets.connect(config['serverAddress']))
+    ws = await websockets.connect(config['serverAddress'])
   else:
     server = input('Server Address: ')
-    ws = asyncio.get_event_loop().run_until_complete(websockets.connect(server))
+    ws = await websockets.connect(server)
 
 async def auth():
   global loggedIn
@@ -103,46 +117,74 @@ async def send_message_queue(outputMsg): # Checks if sending message is a comman
   else:
     await send_message(outputMsg)
 
+async def get_color(username):
+  if username in user_colors:
+    return po.color[user_colors[username]] + username + "\033[39m"
+  else:
+    return username
+
+async def print_out(m_type, message):
+  global username
+  global previousMsg
+  if not message == previousMsg:
+    previousMsg = message
+    if m_type == "message":
+      print(msg_stat.format(await get_color(message['author']), message['message']))
+    elif m_type == "broadcast":
+      print(server_stat.format(message['message']))
+    elif m_type == "join":
+      print(join_stat.format(await get_color(message['username'])))
+    elif m_type == "quit":
+      print(quit_stat.format(message['username']))
+    elif m_type == "direct_message":
+      print(dm_stat.format(await get_color(message['author']), await get_color(username), message['message']))
+    elif m_type == "auth":
+      if message['new_account']:
+        print(auth_stat.format("New account created successfully."))
+    elif not message['new_account'] and message['success']:
+        print(auth_stat.format("Successfully authenticated with an existing account."))
+    elif not message['new_account'] and not message['success']:
+        print(auth_stat.format("There was an error authenticating, please check your password."))
+    elif m_type == "user_list":
+      if not users_list == []:
+        print("Online Users:\n{}".format(', '.join(users_list)))
+      else:
+        print("No one is online.")
+
+async def parse_message(message):
+  global previousMsg
+  global users_list
+  if "type" in message: # checks the type of each messages and changes the output based on it
+    if message['type'] == "broadcast": # server broadcast messages
+      await print_out("broadcast", message)
+    elif message['type'] == "join": # user join message
+      if not message["username"] in users_list or not message['username'] == username:
+        await print_out("join", message)
+        users_list.append(message['username'])
+    elif message['type'] == "quit": # user quit messages
+      if message["username"] in users_list:
+        await print_out("quit", message)
+        users_list.remove(message['username'])
+    elif message['type'] == "direct_message": # private message
+      await print_out("direct_message", message)
+    elif message['type'] == "auth": # authentication message
+      await print_out("auth", message)
+    elif message['type'] == "user_list": # user list
+      for user in message['users']:
+        users_list.append(user)
+        await print_out("user_list", message)
+    elif message['type'] == "message": # normal messages
+      await print_out("message", message)
+
 async def receive_message(): # main coroutine for receiving messages and parsing the output
   global ws
   global loggedIn
-  global previousMsg
-  global users_list
   if not loggedIn:
     await auth()
   while loggedIn:
     rawInput = await ws.recv() # receives new messages
     JSONInput = json.loads(rawInput) # converts raw messages to json
-    if "type" in JSONInput: # checks the type of each messages and changes the output based on it
-      if JSONInput['type'] == "broadcast": # server broadcast messages
-        InputMsg = "[BROADCAST] {}".format(JSONInput["message"])
-      elif JSONInput['type'] == "join": # user join message
-        if not JSONInput["username"] in users_list or not JSONInput['username'] == username:
-          InputMsg = "[CONNECT] {}".format(JSONInput["username"])
-          users_list.append(JSONInput['username'])
-      elif JSONInput['type'] == "quit": # user quit messages
-        if JSONInput["username"] in users_list:
-          InputMsg = "[DISCONNECT] {}".format(JSONInput["username"])
-          users_list.remove(JSONInput['username'])
-      elif JSONInput['type'] == "direct_message": # private message
-        InputMsg = "|{} > {}| {}".format(JSONInput['author'], username, JSONInput['message'])
-      elif JSONInput['type'] == "auth": # authentication message
-        if JSONInput['new_account'] == False and JSONInput['success'] == True:
-          InputMsg = "[AUTH] Successfully authenticated with an existing account"
-        elif JSONInput['new_account'] == False and JSONInput['success'] == False:
-          InputMsg = "[AUTH] There was an error authenticating, please check your password"
-        elif JSONInput['new_account'] == True:
-          InputMsg = "[AUTH] New account created successfully"
-      elif JSONInput['type'] == "user_list": # user list
-        InputMsg = "user_list"
-        for user in JSONInput['users']:
-          users_list.append(user)
-        print("Online Users:\n{}".format(', '.join(users_list)))
-      elif JSONInput['type'] == "message": # normal messages
-        InputMsg = "<{}> {}".format(JSONInput['author'], JSONInput['message'])
-    if not InputMsg == previousMsg and not InputMsg == "user_list" and not InputMsg == "": # filters out repeat messages and blank emssages
-      print(datetime.now().strftime("%H:%M"), InputMsg) # prints the message on the screen, with its author and a timestamp
-      previousMsg = InputMsg
+    await parse_message(JSONInput)
 
 async def input_message(): # main coroutine for accepting input for sending messages
   while True:
@@ -155,7 +197,7 @@ try:
 except (SystemExit, KeyboardInterrupt, websockets.exceptions.ConnectionClosed):
   print("\nDisconnected from server")
   sys.exit()
-# except Exception as e:
-#   print("{}: {}".format(type(e).__name__, e))
-#   sys.exit()
+except Exception as e:
+  print("{}: {}".format(type(e).__name__, e))
+  sys.exit()
 loop.close()

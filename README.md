@@ -17,6 +17,41 @@ I privated my old repo due to it not having a license.
 4. Any option, besides useSHA512 or custom, can be set to null to prompt everytime
 5. Run with `python3.5 client.py`
 
+## Configuration
+
+Here is an example of how to use the config file
+
+```json
+{
+  "custom": true,
+  "serverAddress": "ws://chat.rwci.ml:5000",
+  "username": "test",
+  "password": "",
+  "useSHA512": true,
+  "colors": [
+    {
+      "username": "wither",
+      "color": "cyan"
+    },
+    {
+      "username": "zach",
+      "color": "red"
+    }
+  ]
+}
+```
+
+"custom" is to prove that you changed values in the config file
+"serverAddress" is a string that holds the websocket server Address, can be set to null
+"username" is a string that holds your username on the chat, can be set to null
+"password" is a string that holds your password on the chat, can be set to null
+"useSHA512" is for toggling the use of SHA512 for password hashing
+"colors" is an array of users and their colors (displayed in chat)
+
+"color" is "colors" array must be one of the following: "black", "red", "green", "yellow", "blue", "magenta", or "cyan"
+
+Any value (that is able to be set to null) can be set to null to prompt you every time.
+
 ## Client Commands
 
 - `|w <user> <message>` sends a private message
@@ -31,4 +66,4 @@ I privated my old repo due to it not having a license.
 ## Future Plans
 
 - a server to compliment my client
-- a light version of the server and client (light as in it won't do much, the server and client are already light on resources) 
+- a light version of the server and client (light as in it won't do much, the server and client are already light on resources)

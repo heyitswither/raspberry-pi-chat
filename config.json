@@ -6,8 +6,8 @@
   "useSHA512": false,
   "colors": [
     {
-      "username": "wither",
-      "color": "#007fff"
+      "username": "username",
+      "color": "color"
     }
   ]
 }
