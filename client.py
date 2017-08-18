@@ -9,10 +9,17 @@ from getpass import getpass
 
 import websockets  # used for websocket connection
 
+import rwci  # message, user, server classes
 from utils import prettyoutput as po  # used for pretty output to the console
 
-with open('config.json') as fileIn:
-  config = json.load(fileIn)  # imports config.json as config
+try:
+  with open('config.json') as fileIn:
+    config = json.load(fileIn)  # imports config.json as config
+except FileNotFoundError:  # creates config if not found
+  with open('config.json', 'w+') as fileIO:
+    config = {"custom": False, "serverAddress": None, "username": None, "password": None,
+              "useSHA512": False, "colors": [{"username": "username", "color": "color"}]}
+    json.dump(config, fileIO, indent=2)
 
 if not config['custom']:  # used for making sure the user has looked over config.json
   print("Please read and change any necessary options in the config.json file.")
@@ -166,6 +173,8 @@ async def send_message_queue(outputMsg):
 
 async def get_color(username):
   if username in user_colors:
+    if not user_colors[username] in po.color:
+      raise ValueError(f'{user_colors[username]} is not a valid color')
     return po.color[user_colors[username]] + username + "\033[39m"
   else:
     return username
