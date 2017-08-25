@@ -65,8 +65,8 @@ Any value (that is able to be set to null) can be set to null to prompt you ever
 - `|users` shows the online users
 - `|raw <raw_json>` sends raw json to the server
 - `|clear` clears the chat
-- `|eval <python_code>` evalutes python code
-- `|basheval <baash_code>` evalutes bash code
+- `|eval <code>` evalutes python code
+- `|exec <command>` executes bash commands
 - `|help` show these commands
 
 ## Future Plans
