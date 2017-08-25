@@ -2,12 +2,11 @@ import asyncio  # used for multiple threads
 import hashlib  # used for hashing passwords
 import json  # used for formatting
 import os  # used for clearing the screen
+import subprocess
 import sys  # used for exiting
 from datetime import datetime  # used for timestamps
 # used for inputting passwords, doesnt display the password onscreen
 from getpass import getpass
-
-import websockets
 
 import rwci
 from utils import prettyoutput as po  # used for pretty output to the console
@@ -66,7 +65,8 @@ async def get_color(username):
 
 @client.event
 async def on_ready():
-  print(f"Connected to server {client.gateway_url}")
+  print("Successfully connected to the server")
+  asyncio.ensure_future(input_message())
 
 
 @client.event
@@ -131,14 +131,15 @@ async def parse_command(message):
       print("{}: {}".format(type(e).__name__, e))
   elif message.split()[0] == "|exec":
     try:
-      output = subprocess.run(' '.join(message.split()[1:]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='Latin-1')
+      output = subprocess.run(' '.join(message.split()[
+                              1:]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='Latin-1')
       if output.stderr == '':
         print(output.stdout)
       else:
         print(output.stdout)
     except Exception as e:
       print("{}: {}".format(type(e).__name__, e))
-  elif message.split()[0] == "|quit":  # disconnect from the chat
+  elif message.split()[0] == "|quit" or message.split()[0] == "|q":  # disconnect from the chat
     sys.exit()
   elif message.split()[0] == "|help":
     print("Commands:\n\t|w <user> <message>\n\t\tsend a private message\n\t|raw <raw_json>\n\t\tsend raw json\n\t|users\n\t\tshow online users\n\t|eval <code>\n\t\tevaluate python code\n\t|exec <command>\n\t\executes bash commands\n\t|clear\n\t\tclears the chat\n\t|quit\n\t\tdisconnect from the server")
@@ -157,8 +158,10 @@ async def send_message_queue(outputMsg):
 async def input_message():  # main coroutine for accepting input for sending messages
   while True:
     # takes message input
-    message = await loop.run_in_executor(None, sys.stdin.readline)
-    await send_message_queue(message)  # calls send message function
+    message = await client.loop.run_in_executor(None, sys.stdin.readline)
+    # removes line break at the end of message
+    message = ' '.join(message.split('\n')[:len(message.split('\n')) - 1])
+    await send_message_queue(message)
 
 if config['username'] is None:  # Asks for a username if it is not already set in config.json
   login_username = input("Username: ")
@@ -176,11 +179,10 @@ if config['useSHA512']:  # Hashed password if useSHA512 is set to true in config
 else:
   login_password = rawPass.decode('utf-8')
 
-loop = asyncio.get_event_loop()
 try:
   # runs the two main loops until stopped by the user
-  loop.run_until_complete(asyncio.gather(input_message(), client.run(login_username, login_password)))
-except (SystemExit, KeyboardInterrupt, websockets.exceptions.ConnectionClosed):
+  client.run(login_username, login_password)
+except (SystemExit, KeyboardInterrupt):
   print("\nDisconnected from server")
   sys.exit()
 except Exception as e:

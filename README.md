@@ -12,10 +12,11 @@ I privated my old repo due to it not having a license.
 ## Installation
 
 1. Clone this repository to your computer using `git clone http://github.com/heyitswither/raspberry-pi-chat`
-2. Run `python3.5 -m pip install -r requirements.txt` to install dependancies
+2. `cd raspberry-pi-chat`
+2. Run `pip install -r requirements.txt` to install dependancies
 3. Edit `config.json` with your credentials and the server address
 4. Any option, besides useSHA512 or custom, can be set to null to prompt everytime
-5. Run with `python3.5 client.py`
+5. Run with `python client.py`
 
 ## Configuration
 
@@ -77,3 +78,4 @@ Any value (that is able to be set to null) can be set to null to prompt you ever
 ## Dependancies
 
 [Pretty Output](https://github.com/Aareon/prettyoutput)
+[RWCI.py]9https://github.com/heyitswither/rwci.py

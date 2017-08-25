@@ -1,1 +1,1 @@
-websockets
+git+https://github.com/heyitswither/rwci.py.git
