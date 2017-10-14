@@ -11,63 +11,81 @@ from getpass import getpass
 import rwci
 from utils import prettyoutput as po  # used for pretty output to the console
 
-previousMsg = None  # the previosu message received, for spam prevention
-users_list = []  # list of online users
-loggedIn = False
 user_colors = {}
 
-server_stat = po.custom(string="{}", color_code="red",
-                        stat_msg="[SERVER]", prn_out=False)
-auth_stat = po.custom(string="{}", color_code="red",
-                      stat_msg="[AUTH]", prn_out=False)
-join_stat = po.custom(string="{}", color_code="green",
-                      stat_msg="[CONNECT]", prn_out=False)
-quit_stat = po.custom(string="{}", color_code="yellow",
-                      stat_msg="[DISCONNECT]", prn_out=False)
-dm_stat = po.custom(string="{}", color_code="cyan",
-                    stat_msg="|{} > {}|", prn_out=False)
-msg_stat = po.custom(string="{}", color_code="reset",
-                     stat_msg="<{}>", prn_out=False)
+server_stat = po.custom(string="{}", color_code="red", stat_msg="[SERVER]", prn_out=False)
+auth_stat = po.custom(string="{}", color_code="red", stat_msg="[AUTH]", prn_out=False)
+join_stat = po.custom(string="{}", color_code="green", stat_msg="[CONNECT]", prn_out=False)
+quit_stat = po.custom(string="{}", color_code="yellow", stat_msg="[DISCONNECT]", prn_out=False)
+dm_stat = po.custom(string="{}", color_code="cyan", stat_msg="|{} > {}|", prn_out=False)
+msg_stat = po.custom(string="{}", color_code="reset", stat_msg="<{}>", prn_out=False)
 
-try:
-  with open('config.json') as fileIn:
-    config = json.load(fileIn)  # imports config.json as config
-except FileNotFoundError:  # creates config if not found
-  with open('config.json', 'w+') as fileIO:
-    config = {"custom": False, "serverAddress": None, "username": None, "password": None,
-              "useSHA512": False, "colors": [{"username": "username", "color": "color"}]}
-    json.dump(config, fileIO, indent=2)
+class Config:
+  def __init__(self):
+    self.__dict__ = {}
 
-if not config['custom']:  # used for making sure the user has looked over config.json
-  print("Please read and change any necessary options in the config.json file.")
-  print("You must also have read the README.md file to the format of the options.")
-  print("If you have done these things, please change custom to true in the config.json file.")
-  sys.exit()
+  def get(self, key):
+    try:
+      self.__dict__ = json.load(open('config.json'))
+      return self.__dict__[key]
+    except FileNotFoundError:
+      json.dump({}, open('config.json', 'w+'), indent=2)
+    except:
+      return None
+    return None
 
-for user in config['colors']:
-  user_colors[user['username']] = user['color']
+  def set(self, key, value):
+    self.__dict__[key] = value
+    json.dump(self.__dict__, open('config.json', 'w+'), indent=2)
 
-if not config['serverAddress'] is None:
-  client = rwci.Client(gateway_url=config['serverAddress'])
-else:
+def yes_or_no(prompt, default='y'):
+  if default == 'y':
+    this_input = input(prompt + " [Y/n]: ")
+  elif default == 'n':
+    this_input = input(prompt + " [y/N]: ")
+  if this_input.lower() == 'y' or this_input.lower() == 'yes' or this_input.lower() == '':
+    return True
+  return False
+
+config = Config()
+use_defaults = yes_or_no("Would you like to use your default login settings?")
+
+if not config.get('serverAddress') or not use_defaults:
   server = input('Server Address: ')
   client = rwci.Client(gateway_url=server)
+else:
+  client = rwci.Client(gateway_url=config.get('serverAddress'))
 
+if not config.get('username') or not use_defaults:  # Asks for a username if it is not already set in config.json
+  login_username = input("Username: ")
+else:
+  login_username = config.get('username')
+
+if not config.get('password') or not use_defaults:  # Asks for a password if it is not already set in config.json
+  login_password = getpass("Password: ")
+else:
+  login_password = config.get('password')
+
+if not use_defaults:
+  if yes_or_no("Would you like to save these settings?"):
+    config.set('username', login_username)
+    config.set('password', login_password)
+    config.set('serverAddress', client.gateway_url)
+
+if config.get('colors'):
+  for user in config.get('colors'):
+    user_colors[user['username']] = user['color']
 
 async def get_color(username):
-  if username in user_colors:
-    if not user_colors[username] in po.color:
-      raise ValueError(f'{user_colors[username]} is not a valid color')
+  if user_colors.get(username) in po.color:
     return po.color[user_colors[username]] + username + "\033[39m"
-  else:
-    return username
+  return username
 
 
 @client.event
 async def on_ready():
   print("Successfully connected to the server")
   asyncio.ensure_future(input_message())
-
 
 @client.event
 async def on_message(message):
@@ -108,7 +126,13 @@ async def parse_command(message):
 
   Takes a message that is a comamnd as a parameter and returns the output of that message.
   """
-  if message.split()[0] == "|w":  # private messages
+  if not config.get('command_prefix'):
+    prefix = "/"
+  else:
+    prefix = config.get('command_prefix')
+  if not message.startswith(prefix):
+    return False
+  if message.split()[0] == f"{prefix}w":  # private messages
     if message.split()[1] in client.user_list and not message.split()[1] == client.username:
       message_content = " ".join(message.split()[2:])
       message_recipient = message.split()[1]
@@ -117,43 +141,36 @@ async def parse_command(message):
       print("You can't send a private message to yourself!")
     else:
       print("That user is not online!")
-  elif message.split()[0] == "|raw":  # raw formatted messages
+  elif message.split()[0] == f"{prefix}raw":  # raw formatted messages
     JSONOutput = json.dumps(json.loads(' '.join(message.split()[1:])))
     await client.ws.send(JSONOutput)
-  elif message.split()[0] == "|users":  # user list
+  elif message.split()[0] == f"{prefix}users":  # user list
     print("Online Users:\n{}".format(', '.join(client.user_list)))
-  elif message.split()[0] == "|clear":  # clears the chat
+  elif message.split()[0] == f"{prefix}clear":  # clears the chat
     os.system("cls" if os.name == "nt" else "clear")
-  elif message.split()[0] == "|eval":  # evaluates python code
+  elif message.split()[0] == f"{prefix}eval":  # evaluates python code
     try:
-      print(eval(' '.join(message.split()[1:])))
+      this_message = message
+      message = await client.get_latest_message()
+      print(eval(' '.join(this_message.split()[1:])))
     except Exception as e:
       print("{}: {}".format(type(e).__name__, e))
-  elif message.split()[0] == "|exec":
+  elif message.split()[0] == f"{prefix}exec":
     try:
-      output = subprocess.run(' '.join(message.split()[
-                              1:]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='Latin-1')
+      output = subprocess.run(' '.join(message.split()[1:]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='Latin-1')
       if output.stderr == '':
         print(output.stdout)
       else:
         print(output.stdout)
     except Exception as e:
       print("{}: {}".format(type(e).__name__, e))
-  elif message.split()[0] == "|quit" or message.split()[0] == "|q":  # disconnect from the chat
+  elif message.split()[0] == f"{prefix}quit" or message.split()[0] == f"{prefix}q":  # disconnect from the chat
     sys.exit()
-  elif message.split()[0] == "|help":
-    print("Commands:\n\t|w <user> <message>\n\t\tsend a private message\n\t|raw <raw_json>\n\t\tsend raw json\n\t|users\n\t\tshow online users\n\t|eval <code>\n\t\tevaluate python code\n\t|exec <command>\n\t\executes bash commands\n\t|clear\n\t\tclears the chat\n\t|quit\n\t\tdisconnect from the server")
+  elif message.split()[0] == f"{prefix}help":
+    print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server".format(prefix))
   else:
     print("Unknown command: {}".format(message.split()[0]))
-
-
-# Checks if sending message is a command, if it is print output, if not, send message
-async def send_message_queue(outputMsg):
-  if outputMsg.startswith('|'):
-    await parse_command(outputMsg)
-  else:
-    await client.send(outputMsg)
-
+  return True
 
 async def input_message():  # main coroutine for accepting input for sending messages
   while True:
@@ -161,23 +178,8 @@ async def input_message():  # main coroutine for accepting input for sending mes
     message = await client.loop.run_in_executor(None, sys.stdin.readline)
     # removes line break at the end of message
     message = ' '.join(message.split('\n')[:len(message.split('\n')) - 1])
-    await send_message_queue(message)
-
-if config['username'] is None:  # Asks for a username if it is not already set in config.json
-  login_username = input("Username: ")
-else:
-  login_username = config['username']
-
-if config['password'] is None:  # Asks for a password if it is not already set in config.json
-  rawPass = getpass("Password: ").encode('utf-8')
-else:
-  rawPass = config['password'].encode('utf-8')
-
-if config['useSHA512']:  # Hashed password if useSHA512 is set to true in config.json
-  hash_object = hashlib.sha512(rawPass)
-  login_password = hash_object.hexdigest()
-else:
-  login_password = rawPass.decode('utf-8')
+    if not await parse_command(message):
+      await client.send(message)
 
 try:
   # runs the two main loops until stopped by the user
