@@ -40,8 +40,8 @@ class Config:
 
   def yes_or_no(prompt, default='y'):
     negative_default = "N" if not default.isupper() else "n"
-    this_input = input("{} [{}/{}]".format(prompt, default, negative_default))
-    if this_input.lower() == 'y' or this_input.lower() == 'yes' or this_input.lower() == '':
+    this_input = input("{} [{}/{}]".format(prompt, default, negative_default)).lower()
+    if this_input in ["y", "yes", ""]:
       return True
     return False
 
