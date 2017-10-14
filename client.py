@@ -88,6 +88,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
   print(msg_stat.format(await get_color(message.author), message.content))
+  client.message = message
 
 
 @client.event
@@ -149,7 +150,7 @@ async def parse_command(message):
   elif message.split()[0] == f"{prefix}eval":  # evaluates python code
     try:
       this_message = message
-      message = await client.get_latest_message()
+      message = client.message
       print(eval(' '.join(this_message.split()[1:])))
     except Exception as e:
       print("{}: {}".format(type(e).__name__, e))
@@ -166,6 +167,8 @@ async def parse_command(message):
     sys.exit()
   elif message.split()[0] == f"{prefix}help":
     print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server".format(prefix))
+  elif message.split()[0] == f"{prefix}shrug":
+    await client.send("¯\_(ツ)_/¯")
   else:
     print("Unknown command: {}".format(message.split()[0]))
   return True
