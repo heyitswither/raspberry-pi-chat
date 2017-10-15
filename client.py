@@ -102,11 +102,15 @@ async def on_user_list(user_list):
 
 @client.event
 async def on_join(username):
+  if config.get('blocked'):
+    if username in config.get('blocked'): return
   print(join_stat.format(await get_color(username)))
 
 
 @client.event
 async def on_quit(username):
+  if config.get('blocked'):
+    if username in config.get('blocked'): return
   print(quit_stat.format(await get_color(username)))
 
 
@@ -117,6 +121,8 @@ async def on_broadcast(message):
 
 @client.event
 async def on_direct_message(message):
+  if config.get('blocked'):
+    if message.author in config.get('blocked'): return
   print(dm_stat.format(await get_color(message.author), await get_color(client.username), message.content))
 
 
