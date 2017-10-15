@@ -86,6 +86,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+  if config.get('blocked'):
+    if message.author in config.get('blocked'): return
   print(msg_stat.format(await get_color(message.author), message.content))
   client.message = message
 
@@ -168,6 +170,18 @@ async def parse_command(message):
     print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server".format(prefix))
   elif message.split()[0] == f"{prefix}shrug":
     await client.send(' '.join(message.split()[1:]) + " ¯\_(ツ)_/¯")
+  elif message.split()[0] == f"{prefix}block":
+    if not config.get('blocked'):
+      config.set('blocked', [])
+    block_list = config.get('blocked')
+    block_list.append(message.split()[1])
+    config.set('blocked', block_list)
+    print(f"{message.split()[1]} has been added to the block list")
+  elif message.split()[0] == f"{prefix}unblock":
+    block_list = config.get('blocked')
+    block_list.remove(message.split()[1])
+    config.set('blocked', block_list)
+    print(f"{message.split()[1]} has been removed from the block list")
   else:
     print("Unknown command: {}".format(message.split()[0]))
   return True
