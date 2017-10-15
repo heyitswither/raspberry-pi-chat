@@ -82,14 +82,21 @@ async def get_color(username):
 @client.event
 async def on_ready():
   print("Successfully connected to the server")
+  client.current_channel = client.default_channel
+  if not client.current_channel:
+      print("This server does not support channels")
+  else:
+      print(f"Joined channel #{client.current_channel}")
   asyncio.ensure_future(input_message())
 
 @client.event
 async def on_message(message):
+  if not client.default_channel: pass
+  elif not message.channel == client.current_channel: return
+  client.message = message
   if config.get('blocked'):
     if message.author in config.get('blocked'): return
   print(msg_stat.format(await get_color(message.author), message.content))
-  client.message = message
 
 
 @client.event
@@ -188,6 +195,14 @@ async def parse_command(message):
     block_list.remove(message.split()[1])
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been removed from the block list")
+  elif message.split()[0] == f"{prefix}join":
+    if not message.split()[1] in client.channels:
+        print("That channel doesn't exist")
+        return True
+    client.current_channel = message.split()[1]
+    print(f"Joined channel #{message.split()[1]}")
+  elif message.split()[0] == f"{prefix}channels":
+    print("This server does not support channels" if not client.channels else ', '.join(client.channels))
   else:
     print("Unknown command: {}".format(message.split()[0]))
   return True
@@ -199,7 +214,7 @@ async def input_message():  # main coroutine for accepting input for sending mes
     # removes line break at the end of message
     message = ' '.join(message.split('\n')[:len(message.split('\n')) - 1])
     if not await parse_command(message):
-      await client.send(message)
+      await client.send(message, client.current_channel)
 
 try:
   # runs the two main loops until stopped by the user
