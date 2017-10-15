@@ -167,7 +167,7 @@ async def parse_command(message):
   elif message.split()[0] == f"{prefix}help":
     print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server".format(prefix))
   elif message.split()[0] == f"{prefix}shrug":
-    await client.send("¯\_(ツ)_/¯")
+    await client.send(' '.join(message.split()[1:]) + " ¯\_(ツ)_/¯")
   else:
     print("Unknown command: {}".format(message.split()[0]))
   return True
