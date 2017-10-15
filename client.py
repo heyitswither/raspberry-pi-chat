@@ -39,8 +39,7 @@ class Config:
     json.dump(self.__dict__, open('config.json', 'w+'), indent=2)
 
 def yes_or_no(prompt, default='y'):
-    negative_default = "N" if not default.isupper() else "n"
-    this_input = input("{} [{}/{}]".format(prompt, default, negative_default)).lower()
+    this_input = input("{} [{}/{}]: ".format(prompt, default.upper(), "n" if default == "y" else "y")).lower()
     if this_input in ["y", "yes", ""]:
       return True
     return False
