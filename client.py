@@ -146,11 +146,11 @@ async def parse_command(message):
   if not message.startswith(prefix):
     return False
   if message.split()[0] == f"{prefix}w":  # private messages
-    if message.split()[1] in client.user_list and not message.split()[1] == client.username:
+    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    if user in client.user_list and not user == client.username:
       message_content = " ".join(message.split()[2:])
-      message_recipient = message.split()[1]
-      await client.send_dm(message_content, message_recipient)
-    elif message.split()[1] == client.username:
+      await client.send_dm(message_content, user)
+    elif user == client.username:
       print("You can't send a private message to yourself!")
     else:
       print("That user is not online!")
@@ -187,12 +187,14 @@ async def parse_command(message):
     if not config.get('blocked'):
       config.set('blocked', [])
     block_list = config.get('blocked')
-    block_list.append(message.split()[1])
+    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    block_list.append(user)
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been added to the block list")
   elif message.split()[0] == f"{prefix}unblock":
     block_list = config.get('blocked')
-    block_list.remove(message.split()[1])
+    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    block_list.remove(user)
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been removed from the block list")
   elif message.split()[0] == f"{prefix}join":
@@ -203,10 +205,13 @@ async def parse_command(message):
     if not message.split()[1] in client.channels:
         print("That channel doesn't exist")
         return True
-    client.current_channel = message.split()[1]
-    print(f"Joined channel #{message.split()[1]}")
+    new_channel = [channel for channel in client.channels if channel.startswith(message.split()[1])][0]
+    client.current_channel = new_channel
+    print(f"Joined channel #{new_channel}")
   elif message.split()[0] == f"{prefix}channels":
     print("This server does not support channels" if not client.channels else ', '.join(client.channels))
+  elif message.split()[0] == f"{prefix}afk":
+    await client.send(" * afk * ", client.current_channel)
   else:
     print("Unknown command: {}".format(message.split()[0]))
   return True
