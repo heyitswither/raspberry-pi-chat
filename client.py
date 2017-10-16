@@ -101,8 +101,8 @@ async def on_message(message):
 
 @client.event
 async def on_user_list(user_list):
-  if not len(client.user_list) == 0:
-    print("Online Users:\n{}".format(', '.join(client.user_list)))
+  if not len(client.users) == 0:
+    print("Online Users:\n{}".format(', '.join(client.users)))
   else:
     print("No one is online :(")
 
@@ -146,19 +146,22 @@ async def parse_command(message):
   if not message.startswith(prefix):
     return False
   if message.split()[0] == f"{prefix}w":  # private messages
-    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
-    if user in client.user_list and not user == client.username:
-      message_content = " ".join(message.split()[2:])
-      await client.send_dm(message_content, user)
-    elif user == client.username:
-      print("You can't send a private message to yourself!")
-    else:
+    try:
+      user = [user for user in client.users if user.startswith(message.split()[1])][0]
+    except IndexError:
       print("That user is not online!")
+    else:
+      if user in client.users and not user == client.username:
+        message_content = " ".join(message.split()[2:])
+        await client.send_dm(message_content, user)
+        print(dm_stat.format(await get_color(client.username), await get_color(user), message_content))
+      elif user == client.username:
+        print("You can't send a private message to yourself!")
   elif message.split()[0] == f"{prefix}raw":  # raw formatted messages
     JSONOutput = json.dumps(json.loads(' '.join(message.split()[1:])))
     await client.ws.send(JSONOutput)
   elif message.split()[0] == f"{prefix}users":  # user list
-    print("Online Users:\n{}".format(', '.join(client.user_list)))
+    print("Online Users:\n{}".format(', '.join(client.users)))
   elif message.split()[0] == f"{prefix}clear":  # clears the chat
     os.system("cls" if os.name == "nt" else "clear")
   elif message.split()[0] == f"{prefix}eval":  # evaluates python code
@@ -188,8 +191,8 @@ async def parse_command(message):
       config.set('blocked', [])
     block_list = config.get('blocked')
     try:
-      user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
-    except KeyErrpr:
+      user = [user for user in client.users if user.startswith(message.split()[1])][0]
+    except IndexError:
       user = message.split()[1]
     block_list.append(user)
     config.set('blocked', block_list)
@@ -197,8 +200,8 @@ async def parse_command(message):
   elif message.split()[0] == f"{prefix}unblock":
     block_list = config.get('blocked')
     try:
-      user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
-    except KeyErrpr:
+      user = [user for user in client.users if user.startswith(message.split()[1])][0]
+    except IndexErrpr:
       user = message.split()[1]
     block_list.remove(user)
     config.set('blocked', block_list)
@@ -210,9 +213,9 @@ async def parse_command(message):
       return True
     try:
       new_channel = [channel for channel in client.channels if channel.startswith(message.split()[1])][0]
-    except KeyError:
+    except IndexError:
       print("That channel doesn't exist")
-    finally:
+    else:
       client.current_channel = new_channel
       print(f"Joined channel #{new_channel}")
   elif message.split()[0] == f"{prefix}channels":
