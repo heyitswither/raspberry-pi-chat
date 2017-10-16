@@ -180,7 +180,7 @@ async def parse_command(message):
   elif message.split()[0] == f"{prefix}quit" or message.split()[0] == f"{prefix}q":  # disconnect from the chat
     sys.exit()
   elif message.split()[0] == f"{prefix}help":
-    print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server".format(prefix))
+    print("Commands:\n\t{0}w <user> <message>\n\t\tsend a private message\n\t{0}raw <raw_json>\n\t\tsend raw json\n\t{0}users\n\t\tshow online users\n\t{0}eval <code>\n\t\tevaluate python code\n\t{0}exec <command>\n\t\texecutes bash commands\n\t{0}clear\n\t\tclears the chat\n\t{0}quit\n\t\tdisconnect from the server\n\t{0}shrug\n\t\tappends ¯\_(ツ)_/¯ to your message\n\t{0}block <user>\n\t\tblocks a user\n\t{0}unblock <user>\n\t\tunblocks a user\n\t{0}join <channel>\n\t\tjoins a channel\n\t{0}channels\n\t\tlists the channels on the server\n".format(prefix))
   elif message.split()[0] == f"{prefix}shrug":
     await client.send(' '.join(message.split()[1:]) + " ¯\_(ツ)_/¯")
   elif message.split()[0] == f"{prefix}block":

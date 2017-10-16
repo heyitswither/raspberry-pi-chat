@@ -22,58 +22,64 @@ I privated my old repo due to it not having a license.
 
 Here is an example of how to use the config file
 
+You should not need to edit this file as all settings can be changed from the client.
+
+These values can be set from inside the client with the command `/eval config.set(setting, value)` but serverAddress, username, and password require you to restart the client for it to change.
+
 ```json
 {
-  "custom": true,
-  "serverAddress": "ws://chat.rwci.ml:5000",
+  "serverAddress": "ws://localhost:5000",
   "username": "test",
-  "password": "",
-  "useSHA512": true,
-  "colors": [
-    {
-      "username": "wither",
-      "color": "cyan"
-    },
-    {
-      "username": "zach",
-      "color": "red"
-    }
-  ]
+  "password": "test",
+  "blocked": [
+    "Cyberbriiian"
+  ],
+  "command_prefix": "/"
 }
 ```
 
-"custom" is to prove that you changed values in the config file
+"serverAddress" is a string that holds the websocket server Address
 
-"serverAddress" is a string that holds the websocket server Address, can be set to null
+"username" is a string that holds your username on the chat
 
-"username" is a string that holds your username on the chat, can be set to null
+"password" is a string that holds your password on the chat
 
-"password" is a string that holds your password on the chat, can be set to null
+"blocked" is a list of blocked users
 
-"useSHA512" is for toggling the use of SHA512 for password hashing
+"command_prefix" is the prefix for client commands
 
-"colors" is an array of users and their colors (displayed in chat)
-
-
-"color" is "colors" array must be one of the following: "black", "red", "green", "yellow", "blue", "magenta", or "cyan"
-
-Any value (that is able to be set to null) can be set to null to prompt you every time.
+Any of these values can be set to `null` to prompt every time
 
 ## Client Commands
 
-- `|w <user> <message>` sends a private message
-- `|quit` disconnects from the server
-- `|users` shows the online users
-- `|raw <raw_json>` sends raw json to the server
-- `|clear` clears the chat
-- `|eval <code>` evalutes python code
-- `|exec <command>` executes bash commands
-- `|help` show these commands
+`/w <user> <message>`
+    send a private message
+`/raw <raw_json>`
+    send raw json
+`/users`
+    show online users
+`/eval <code>`
+    evaluate python code
+`/exec <command>`
+    executes bash commands
+`/clear`
+    clears the chat
+`/quit`
+    disconnect from the server
+`/shrug`
+    appends ¯\\\_(ツ)\_/¯ to your message
+`/block <user>`
+    blocks a user
+`/unblock <user>`
+    unblocks a user
+`/join <channel>`
+    joins a channel
+`/channels`
+    lists the channels on the server
+`/help`
+    shows these commands
 
-## Future Plans
-
-- a server to compliment my client
-- a light version of the server and client (light as in it won't do much, the server and client are already light on resources)
+The prefix '/' is the default, but can be changed with the command `/eval config.set('command_prefix', 'your_prefix_here')` and does not require a restart.
 
 ## Dependancies
 
