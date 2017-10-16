@@ -187,27 +187,34 @@ async def parse_command(message):
     if not config.get('blocked'):
       config.set('blocked', [])
     block_list = config.get('blocked')
-    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    try:
+      user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    except KeyErrpr:
+      user = message.split()[1]
     block_list.append(user)
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been added to the block list")
   elif message.split()[0] == f"{prefix}unblock":
     block_list = config.get('blocked')
-    user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    try:
+      user = [user for user in client.user_list if user.startswith(message.split()[1])][0]
+    except KeyErrpr:
+      user = message.split()[1]
     block_list.remove(user)
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been removed from the block list")
   elif message.split()[0] == f"{prefix}join":
     if len(message.split()) == 1:
-        client.current_channel = client.default_channel
-        print(f"Joined channel #{client.default_channel}")
-        return True
-    if not message.split()[1] in client.channels:
-        print("That channel doesn't exist")
-        return True
-    new_channel = [channel for channel in client.channels if channel.startswith(message.split()[1])][0]
-    client.current_channel = new_channel
-    print(f"Joined channel #{new_channel}")
+      client.current_channel = client.default_channel
+      print(f"Joined channel #{client.default_channel}")
+      return True
+    try:
+      new_channel = [channel for channel in client.channels if channel.startswith(message.split()[1])][0]
+    except KeyError:
+      print("That channel doesn't exist")
+    finally:
+      client.current_channel = new_channel
+      print(f"Joined channel #{new_channel}")
   elif message.split()[0] == f"{prefix}channels":
     print("This server does not support channels" if not client.channels else ', '.join(client.channels))
   elif message.split()[0] == f"{prefix}afk":
