@@ -196,6 +196,10 @@ async def parse_command(message):
     config.set('blocked', block_list)
     print(f"{message.split()[1]} has been removed from the block list")
   elif message.split()[0] == f"{prefix}join":
+    if len(message.split()) == 1:
+        client.current_channel = client.default_channel
+        print(f"Joined channel #{client.default_channel}")
+        return True
     if not message.split()[1] in client.channels:
         print("That channel doesn't exist")
         return True
