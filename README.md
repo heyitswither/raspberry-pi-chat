@@ -52,31 +52,31 @@ Any of these values can be set to `null` to prompt every time
 
 ## Client Commands
 
-`/w <user> <message>`
+- `/w <user> <message>`
     send a private message
-`/raw <raw_json>`
+- `/raw <raw_json>`
     send raw json
-`/users`
+- `/users`
     show online users
-`/eval <code>`
+- `/eval <code>`
     evaluate python code
-`/exec <command>`
+- `/exec <command>`
     executes bash commands
-`/clear`
+- `/clear`
     clears the chat
-`/quit`
+- `/quit`
     disconnect from the server
-`/shrug`
+- `/shrug`
     appends ¯\\\_(ツ)\_/¯ to your message
-`/block <user>`
+- `/block <user>`
     blocks a user
-`/unblock <user>`
+- `/unblock <user>`
     unblocks a user
-`/join <channel>`
+- `/join <channel>`
     joins a channel
-`/channels`
+- `/channels`
     lists the channels on the server
-`/help`
+- `/help`
     shows these commands
 
 The prefix '/' is the default, but can be changed with the command `/eval config.set('command_prefix', 'your_prefix_here')` and does not require a restart.
