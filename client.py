@@ -2,6 +2,7 @@ import asyncio  # used for multiple threads
 import hashlib  # used for hashing passwords
 import json  # used for formatting
 import os  # used for clearing the screen
+import os.path
 import subprocess
 import sys  # used for exiting
 from datetime import datetime  # used for timestamps
@@ -45,7 +46,10 @@ def yes_or_no(prompt, default='y'):
     return False
 
 config = Config()
-use_defaults = yes_or_no("Would you like to use your default login settings?")
+if os.path.isfile('config.json'):
+  use_defaults = yes_or_no("Would you like to use your default login settings?")
+else:
+  use_defaults = False
 
 if not config.get('serverAddress') or not use_defaults:
   server = input('Server Address: ')
