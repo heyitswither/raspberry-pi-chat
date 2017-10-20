@@ -77,7 +77,7 @@ Any of these values can be set to `null` to prompt every time
 
 The prefix '/' is the default, but can be changed with the command `/eval config.set('command_prefix', 'your_prefix_here')` and does not require a restart.
 
-## Dependancies
+## Dependencies
 
 [Pretty Output](https://github.com/Aareon/prettyoutput)
-[RWCI.py]9https://github.com/heyitswither/rwci.py
+[RWCI.py](https://github.com/heyitswither/rwci.py)
