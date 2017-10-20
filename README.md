@@ -3,11 +3,7 @@
 
 This is a websocket client for the raspberry pi group chat. You can join the discord [here](http://discord.io/raspberrypi).
 
-You can find the documentation for the specifications of packet format and other details for creating your own client [here](https://drzach-demo.readthedocs.io/en/latest/netscape-chat/information/)
-
-~~My old, non-working clients have been moved to the [old-version branch](https://github.com/heyitswither/raspberry-pi-chat/tree/old-version)~~
-
-I privated my old repo due to it not having a license.
+You can find the documentation for the specifications of packet format and other details for creating your own client [here](https://gist.github.com/AnonymousDapper/33f45f7bf27151542330ce3a67658ba0)
 
 ## Installation
 
