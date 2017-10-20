@@ -23,12 +23,12 @@ msg_stat = po.custom(string="{}", color_code="reset", stat_msg="<{}>", prn_out=F
 
 class Config:
   def __init__(self):
-    self.__dict__ = {}
+    self._db = {}
 
   def get(self, key):
     try:
-      self.__dict__ = json.load(open('config.json'))
-      return self.__dict__[key]
+      self._db = json.load(open('config.json'))
+      return self._db[key]
     except FileNotFoundError:
       json.dump({}, open('config.json', 'w+'), indent=2)
     except:
@@ -36,8 +36,8 @@ class Config:
     return None
 
   def set(self, key, value):
-    self.__dict__[key] = value
-    json.dump(self.__dict__, open('config.json', 'w+'), indent=2)
+    self._db[key] = value
+    json.dump(self._db, open('config.json', 'w+'), indent=2)
 
 def yes_or_no(prompt, default='y'):
     this_input = input("{} [{}/{}]: ".format(prompt, default.upper(), "n" if default == "y" else "y")).lower()
