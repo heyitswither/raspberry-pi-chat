@@ -100,6 +100,7 @@ async def on_message(message):
   client.message = message
   if config.get('blocked'):
     if message.author in config.get('blocked'): return
+  message.content = message.content.replace(f'@{client.username}', po.color.get('red') + "@" + client.username + po.color.get('reset'))
   print(msg_stat.format(await get_color(message.author), message.content))
 
 
