@@ -7,12 +7,11 @@ You can find the documentation for the specifications of packet format and other
 
 ## Installation
 
-1. Clone this repository to your computer using `git clone http://github.com/heyitswither/raspberry-pi-chat`
+1. Clone this repository to your computer using `git clone https://github.com/heyitswither/raspberry-pi-chat`
 2. `cd raspberry-pi-chat`
 2. Run `pip install -r requirements.txt` to install dependancies
-3. Edit `config.json` with your credentials and the server address
-4. Any option, besides useSHA512 or custom, can be set to null to prompt everytime
-5. Run with `python client.py`
+3. Run with `python client.py`
+4. On the first run you will be prompted for a server and your credentials
 
 ## Configuration
 
@@ -34,7 +33,7 @@ These values can be set from inside the client with the command `/eval config.se
 }
 ```
 
-"serverAddress" is a string that holds the websocket server Address
+"serverAddress" is a string that holds the websocket server address
 
 "username" is a string that holds your username on the chat
 
